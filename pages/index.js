@@ -68,7 +68,7 @@ function ChatRoom() {
   // const messagesRef = firestore.collection('messages');
   const q = query(messagesRef, orderBy("createdAt"));
   // messagesRef.orderBy('createdAt').limit(25);
-  const messages1 = []
+  let messages1 = []
   useEffect(async () => {
 
     const unsubscrib = await onSnapshot(q, (snap) => {

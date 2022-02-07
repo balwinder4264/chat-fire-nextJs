@@ -3,17 +3,18 @@ import { collection, doc, getDoc, onSnapshot, orderBy, query, addDoc } from 'fir
 import { auth, db, provider } from '../firebase'
 import { getAuth, signInWithPopup } from "firebase/auth"
 function App() {
+  const auth = getAuth();
 
   const [user, setUser] = useState(auth);
   useEffect(() => {
-    const auth = getAuth();
+
     return auth.onIdTokenChanged(async (user) => {
       if (!user) {
         console.log("No user ");
         setUser(null);
         // setLoading(null)
 
-        return
+        return;
       }
       const token = await user.getIdToken();
 
@@ -32,7 +33,7 @@ function App() {
       </header>
 
       <section>
-        {user ? <ChatRoom /> : <SignIn />}
+        {!user ? <SignIn /> : <ChatRoom user={user} />}
       </section>
 
     </div>
@@ -55,21 +56,28 @@ function SignIn() {
 }
 
 function SignOut() {
-  return auth.currentUser && (
+  const auth = getAuth();
+  return auth ? auth.currentUser && (
     <button className="sign-out" onClick={() => auth.signOut()}>Sign Out</button>
-  )
+  ) : <button className="sign-out" onClick={() => auth.signOut()}>Sign Out</button>
 }
 
 
-function ChatRoom() {
+function ChatRoom({ user }) {
+  if (!user) {
+    return null
+  }
   const dummy = useRef();
+
   const [messages, setMessage] = useState(null)
-  const messagesRef = collection(db, "messages");
-  // const messagesRef = firestore.collection('messages');
-  const q = query(messagesRef, orderBy("createdAt"));
+
   // messagesRef.orderBy('createdAt').limit(25);
+
   let messages1 = []
   useEffect(async () => {
+    const messagesRef = collection(db, "messages");
+    // const messagesRef = firestore.collection('messages');
+    const q = query(messagesRef, orderBy("createdAt"));
 
     const unsubscrib = await onSnapshot(q, (snap) => {
       messages1 = []
@@ -81,7 +89,7 @@ function ChatRoom() {
 
     return unsubscrib
 
-  }, [])
+  }, [user])
 
 
   // const [messages] = useCollectionData(query, { idField: 'id' });
@@ -91,7 +99,7 @@ function ChatRoom() {
 
   const sendMessage = async (e) => {
     e.preventDefault();
-
+    const messagesRef = collection(db, "messages");
     const { uid, photoURL } = auth.currentUser;
     const response = await addDoc(messagesRef, {
       text: formValue,

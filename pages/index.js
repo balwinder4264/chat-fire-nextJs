@@ -64,13 +64,11 @@ function SignOut() {
 
 
 function ChatRoom({ user }) {
-  if (!user) {
-    return null
-  }
+
   const dummy = useRef();
 
   const [messages, setMessage] = useState(null)
-
+  const [formValue, setFormValue] = useState('');
   // messagesRef.orderBy('createdAt').limit(25);
 
   let messages1 = []
@@ -89,12 +87,12 @@ function ChatRoom({ user }) {
 
     return unsubscrib
 
-  }, [user])
+  }, [])
 
 
   // const [messages] = useCollectionData(query, { idField: 'id' });
 
-  const [formValue, setFormValue] = useState('');
+
 
 
   const sendMessage = async (e) => {
